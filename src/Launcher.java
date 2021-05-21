@@ -7,23 +7,58 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Launcher {
+interface Command
+{
+    public String name();
+    public Boolean run(java.util.Scanner scan);
+}
 
-    public static java.util.Scanner scan;
-    public static void main(String[] args){
-        System.out.println("hi");
-        scan = new Scanner(System.in);
-        String test = scan.nextLine();
-        while (!test.equals("quit")) {
-            switch (test) {
-                case "fibo" -> fibo();
-                case "freq" -> freq();
-                default -> System.out.println("Unknown command");
-            }
-            test = scan.nextLine();
-        }
+class Quit implements Command
+{
+
+    public String name() {
+        return "quit";
     }
-    public static void freq() {
+
+
+    public Boolean run(java.util.Scanner scan) {
+        return true;
+    }
+}
+class Fibo implements Command
+{
+
+    public String name() {
+        return "fibo";
+    }
+
+
+    public Boolean run(Scanner scan) {
+        System.out.println("Enter a number N :");
+        int n  = scan.nextInt();
+        int i = n;
+        scan.nextLine();
+        long a = 0;
+        long b = 1;
+        while (i > 0)
+        {
+            long c = b;
+            b = b + a;
+            a = c;
+            i--;
+        }
+        System.out.println(String.format("Fibo(%d)=%d",n,a));
+        return true;
+    }
+}
+class Freq implements Command
+{
+
+    public String name() {
+        return "freq";
+    }
+
+    public Boolean run(Scanner scan) {
         System.out.println("Enter the path to the file:");
         String path = scan.nextLine();
         String file = "";
@@ -32,6 +67,8 @@ public class Launcher {
         }
         catch (IOException e) {
             System.out.print(String.format("Unreadable file: %s",e.getClass().getName()));
+            System.out.println();
+            return false;
         }
         List<String> allword = Arrays.asList(file.replaceAll("(,|;|:|'|\n)", " ").toLowerCase().split(" "));
         Map<String, Integer> freqmap = new HashMap<>();
@@ -62,22 +99,30 @@ public class Launcher {
             System.out.print(bestthree.get(i));
         }
         System.out.print('\n');
+        return true;
     }
-    public static void fibo() {
-        System.out.println("Enter a number N :");
-        int n  = scan.nextInt();
-        int i = n;
-        scan.nextLine();
-        long a = 0;
-        long b = 1;
-        while (i > 0)
-        {
-            long c = b;
-            b = b + a;
-            a = c;
-            i--;
+}
+
+public class Launcher {
+
+    public static java.util.Scanner scan;
+    public static void main(String[] args){
+        System.out.println("hi u can type command now");
+        List<Command> avaiblecommmand = new ArrayList<>();
+        avaiblecommmand.add(new Fibo());
+        avaiblecommmand.add(new Quit());
+        avaiblecommmand.add(new Freq());
+        scan = new Scanner(System.in);
+        String test = scan.nextLine();
+        while (!test.equals("quit")) {
+            for (Command c : avaiblecommmand)
+            {
+                if (c.name().equals(test) && c.run(scan))
+                    return;
+            }
+            test = scan.nextLine();
         }
-        System.out.println(String.format("Fibo(%d)=%d",n,a));
     }
+
 }
 
